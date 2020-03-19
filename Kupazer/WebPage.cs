@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace Kupazer
@@ -38,7 +39,26 @@ namespace Kupazer
         private void MakeTab()
         {
             TabIndex = Index-1;
-            Header = "New Tab";
+            StackPanel headerStack = new StackPanel()
+            {
+                Orientation = Orientation.Horizontal
+            };
+            Label label = new Label()
+            {
+                Padding=new Thickness(0),
+                Content = "New Tab",
+                HorizontalAlignment=HorizontalAlignment.Stretch,
+            };
+            Button button = new Button()
+            {
+                Padding = new Thickness(7, 0, 7, 0),
+                Margin = new Thickness(4, 0, 0, 0),
+                Content = "X",
+                HorizontalAlignment=HorizontalAlignment.Right,
+            };
+            headerStack.Children.Add(label);
+            headerStack.Children.Add(button);
+            Header = headerStack;//"New Tab";
             _UrlTextBox = new TextBox();
             _UrlTextBox.KeyUp += Url_KeyUp;
             Grid grid = new Grid()
@@ -86,8 +106,6 @@ namespace Kupazer
             refresh.Click += Button_Click;
             go.Click += go_Click;
             Browser = new WebBrowser();
-            Browser.MouseDown += Browser_MouseDown;
-            Browser.MouseUp += Browser_MouseUp;
             grid.Children.Add(_UrlTextBox);
             grid.Children.Add(refresh);
             grid.Children.Add(go);
@@ -102,28 +120,6 @@ namespace Kupazer
             Grid.SetRow(Browser, 1);
             Content = grid;
         }
-
-        private void Browser_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (pressedLeft)
-                if (LeftButtonPressedPoint.Y - 200 < e.GetPosition(this).Y)
-                    CloseRequested.Invoke(this);
-                else
-                    pressedLeft = false;
-        }
-
-        bool pressedLeft = false;
-        Point LeftButtonPressedPoint = default(Point);
-
-        private void Browser_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                pressedLeft = true;
-                LeftButtonPressedPoint = e.GetPosition(this);
-            }
-        }
-
         private void Browser_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
         {
             Url = e.Uri.AbsoluteUri;
