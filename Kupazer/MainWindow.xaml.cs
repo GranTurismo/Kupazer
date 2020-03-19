@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -26,10 +27,7 @@ namespace Kupazer
             FirstRun();
         }
 
-        private void FirstRun()
-        {
-            MakeNewTab();
-        }
+        private void FirstRun() => MakeNewTab();
 
         private void MakeNewTab()
         {
@@ -41,13 +39,19 @@ namespace Kupazer
 
         private void NewWebPage_CloseRequested(WebPage obj)
         {
-            tabs.Items.Remove(obj);
+            if (tabs.Items.Count < 3)
+                obj.ResetTab();
+            else
+                tabs.Items.Remove(obj);
         }
-
         private void tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var raisedBy = sender as TabControl;
+            if (raisedBy is null)
+                return;
             var selected = raisedBy.SelectedItem as TabItem;
+            if (selected is null)
+                return;
             if (selected.Tag != null && selected.Tag as string == "newTab")
             {
                 MakeNewTab();
